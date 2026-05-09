@@ -62,7 +62,7 @@ function hasTotals(totals: CurrencyTotal[]) {
             <span>{{ item.count }} шт.</span>
           </div>
           <div class="bar" aria-hidden="true">
-            <span :style="{ width: `${item.percentage}%` }"></span>
+            <span :class="['bar-fill', item.key]" :style="{ width: `${item.percentage}%` }"></span>
           </div>
           <div class="row-foot">
             <span>{{ item.percentage }}%</span>
@@ -90,7 +90,7 @@ function hasTotals(totals: CurrencyTotal[]) {
             <span>{{ item.count }} шт.</span>
           </div>
           <div class="bar" aria-hidden="true">
-            <span :style="{ width: `${item.percentage}%` }"></span>
+            <span :class="['bar-fill', item.key]" :style="{ width: `${item.percentage}%` }"></span>
           </div>
           <div class="row-foot">
             <span>{{ item.percentage }}%</span>
@@ -120,7 +120,7 @@ article {
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 16px 45px rgb(15 23 42 / 0.05);
+  box-shadow: 0 14px 36px rgb(15 23 42 / 0.04);
   padding: 18px;
 }
 
@@ -130,7 +130,7 @@ article {
 }
 
 .section-head span {
-  color: #2563eb;
+  color: #0f766e;
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
@@ -186,7 +186,7 @@ h2 {
   height: 100%;
   min-width: 3px;
   border-radius: inherit;
-  background: #2563eb;
+  background: #0f766e;
 }
 
 time {
@@ -210,8 +210,9 @@ time {
   grid-template-columns: 64px 64px 1fr;
   gap: 12px;
   align-items: center;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #edf2f7;
   border-radius: 8px;
+  background: #f8fafc;
   padding: 12px;
 }
 
@@ -269,7 +270,35 @@ time {
   height: 100%;
   min-width: 2px;
   border-radius: inherit;
+  background: #0f766e;
+}
+
+.bar-fill.completed {
+  background: #16a34a;
+}
+
+.bar-fill.pending {
+  background: #d97706;
+}
+
+.bar-fill.failed {
+  background: #dc2626;
+}
+
+.bar-fill.deposit {
   background: #2563eb;
+}
+
+.bar-fill.withdrawal {
+  background: #7c3aed;
+}
+
+.bar-fill.payment {
+  background: #0891b2;
+}
+
+.bar-fill.transfer {
+  background: #0f766e;
 }
 
 @media (max-width: 900px) {

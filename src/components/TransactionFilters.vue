@@ -44,7 +44,7 @@ function handleSortChange(value: string) {
       <input
         :value="filters.searchQuery"
         type="search"
-        placeholder="Имя клиента или id операции"
+        placeholder="Например, Sophia или TRX-1003"
         aria-label="Поиск по имени клиента или id операции"
         @input="emit('search', ($event.target as HTMLInputElement).value)"
       />
@@ -118,31 +118,39 @@ function handleSortChange(value: string) {
 input,
 select {
   width: 100%;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #d8e0ea;
   border-radius: 8px;
-  background: #ffffff;
+  background: #f8fafc;
   color: #0f172a;
   font: inherit;
   min-height: 42px;
   padding: 9px 12px;
 }
 
+input:hover,
+select:hover {
+  border-color: #94a3b8;
+  background: #ffffff;
+}
+
 input:focus,
 select:focus,
 button:focus-visible {
-  outline: 3px solid #bfdbfe;
+  border-color: #0f766e;
+  background: #ffffff;
+  outline: 3px solid #ccfbf1;
   outline-offset: 1px;
 }
 
 .secondary-button {
   min-height: 42px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #d8e0ea;
   border-radius: 8px;
   background: #ffffff;
   color: #0f172a;
   cursor: pointer;
   font-weight: 700;
-  padding: 9px 14px;
+  padding: 9px 16px;
 }
 
 .secondary-button:hover {

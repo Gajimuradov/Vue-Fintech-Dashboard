@@ -39,53 +39,33 @@ onMounted(() => {
   <main class="page-shell">
     <header class="page-header">
       <div>
-        <p class="eyebrow">Финтех-операции</p>
-        <h1>Панель операций</h1>
-        <p class="lead">Быстрый обзор платежей, переводов, пополнений и выводов без лишнего шума.</p>
+        <p class="eyebrow">Операционный мониторинг</p>
+        <h1>Операции и статусы</h1>
+        <p class="lead">Рабочий экран для контроля платежей, переводов, пополнений и выводов: быстро найти операцию, увидеть статус и открыть детали без лишних переходов.</p>
       </div>
 
       <div class="header-actions">
         <button type="button" class="secondary-button" @click="store.loadTransactions()">
-          Обновить
+          Обновить данные
         </button>
         <button
           type="button"
           class="danger-button"
           @click="store.loadTransactions({ shouldFail: true })"
         >
-          Показать ошибку
+          Сымитировать сбой
         </button>
       </div>
     </header>
 
-    <section class="metrics" aria-label="Сводка по операциям">
-      <article>
-        <span>Найдено</span>
-        <strong>{{ filteredTransactions.length }}</strong>
-      </article>
-      <article>
-        <span>Объем по валютам</span>
-        <div class="currency-summary">
-          <strong v-for="item in currencyTotals" :key="item.currency">
-            {{ formatMoney(item.amount, item.currency) }}
-          </strong>
-        </div>
-      </article>
-      <article>
-        <span>Порядок</span>
-        <strong>{{ currentSortLabel }}</strong>
-      </article>
-    </section>
-
-    <OperationAnalytics
-      v-if="!loading && !error && !isEmpty && !hasNoResults"
-      :status-items="statusAnalytics"
-      :type-items="typeAnalytics"
-      :currency-totals="currencyTotals"
-      :daily-items="dailyTrend"
-    />
-
     <section class="panel">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">Фильтры</p>
+          <h2>Найдите нужную операцию</h2>
+        </div>
+      </div>
+
       <TransactionFilters
         :filters="filters"
         @search="store.setSearchQuery"
@@ -99,7 +79,7 @@ onMounted(() => {
     <StateBlock
       v-if="loading"
       title="Загружаем операции"
-      description="Mock API специально отвечает с небольшой задержкой, чтобы было видно состояние загрузки."
+      description="Получаем список операций и готовим сводку по текущей выборке."
     />
 
     <StateBlock
@@ -107,34 +87,62 @@ onMounted(() => {
       title="Операции не загрузились"
       :description="error"
     >
-      <button type="button" class="primary-button" @click="store.loadTransactions()">Попробовать еще раз</button>
+      <button type="button" class="primary-button" @click="store.loadTransactions()">Повторить загрузку</button>
     </StateBlock>
 
     <StateBlock
       v-else-if="isEmpty"
       title="Операций пока нет"
-      description="Mock API вернул пустой список. Для реального продукта здесь был бы первый чистый экран."
+      description="Список пуст. В рабочем продукте здесь можно показать первый шаг или ссылку на создание операции."
     />
 
     <StateBlock
       v-else-if="hasNoResults"
       title="Ничего не найдено"
-      description="Таких операций в списке нет. Измените фильтры или вернитесь к полной выборке."
+      description="В текущей выборке нет операций с такими параметрами. Попробуйте изменить поиск, статус или тип."
     >
       <button type="button" class="primary-button" @click="store.resetFilters()">Сбросить фильтры</button>
     </StateBlock>
 
-    <TransactionTable v-else :transactions="filteredTransactions" />
+    <template v-else>
+      <section class="metrics" aria-label="Сводка по операциям">
+        <article>
+          <span>В выборке</span>
+          <strong>{{ filteredTransactions.length }}</strong>
+        </article>
+        <article>
+          <span>Оборот по валютам</span>
+          <div class="currency-summary">
+            <strong v-for="item in currencyTotals" :key="item.currency">
+              {{ formatMoney(item.amount, item.currency) }}
+            </strong>
+          </div>
+        </article>
+        <article>
+          <span>Сортировка</span>
+          <strong>{{ currentSortLabel }}</strong>
+        </article>
+      </section>
+
+      <OperationAnalytics
+        :status-items="statusAnalytics"
+        :type-items="typeAnalytics"
+        :currency-totals="currencyTotals"
+        :daily-items="dailyTrend"
+      />
+
+      <TransactionTable :transactions="filteredTransactions" />
+    </template>
   </main>
 </template>
 
 <style scoped>
 .page-shell {
   display: grid;
-  width: min(1180px, calc(100% - 48px));
+  width: min(1220px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 42px 0 56px;
-  gap: 22px;
+  padding: 40px 0 56px;
+  gap: 18px;
 }
 
 .page-header {
@@ -146,7 +154,7 @@ onMounted(() => {
 
 .eyebrow {
   margin: 0 0 8px;
-  color: #2563eb;
+  color: #0f766e;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0;
@@ -161,9 +169,9 @@ h1 {
 }
 
 .lead {
-  max-width: 660px;
+  max-width: 740px;
   margin: 10px 0 0;
-  color: #64748b;
+  color: #475569;
   line-height: 1.6;
 }
 
@@ -183,7 +191,7 @@ h1 {
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 16px 45px rgb(15 23 42 / 0.05);
+  box-shadow: 0 14px 36px rgb(15 23 42 / 0.04);
 }
 
 .metrics article {
@@ -200,7 +208,7 @@ h1 {
 
 .metrics strong {
   color: #0f172a;
-  font-size: 24px;
+  font-size: 22px;
   line-height: 1;
 }
 
@@ -215,7 +223,31 @@ h1 {
 }
 
 .panel {
+  display: grid;
+  gap: 16px;
   padding: 18px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.section-kicker {
+  margin: 0 0 4px;
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
+  line-height: 1.2;
 }
 
 .primary-button,
@@ -230,8 +262,8 @@ h1 {
 }
 
 .primary-button {
-  border: 1px solid #2563eb;
-  background: #2563eb;
+  border: 1px solid #0f766e;
+  background: #0f766e;
   color: #ffffff;
 }
 
@@ -242,25 +274,27 @@ h1 {
 }
 
 .danger-button {
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #991b1b;
+  border: 1px solid #fed7aa;
+  background: #fff7ed;
+  color: #9a3412;
 }
 
 .primary-button:hover {
-  background: #1d4ed8;
+  background: #115e59;
 }
 
 .secondary-button:hover {
-  background: #f8fafc;
+  border-color: #99f6e4;
+  background: #f0fdfa;
+  color: #0f766e;
 }
 
 .danger-button:hover {
-  background: #fee2e2;
+  background: #ffedd5;
 }
 
 button:focus-visible {
-  outline: 3px solid #bfdbfe;
+  outline: 3px solid #ccfbf1;
   outline-offset: 1px;
 }
 

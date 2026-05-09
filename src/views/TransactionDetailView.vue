@@ -26,12 +26,12 @@ onMounted(() => {
 
 <template>
   <main class="page-shell">
-    <button class="back-button" type="button" @click="router.back()">Назад</button>
+    <button class="back-button" type="button" @click="router.back()">К списку операций</button>
 
     <StateBlock
       v-if="loading"
       title="Загружаем операцию"
-      description="Подтягиваем детали и историю статуса из mock API."
+      description="Получаем карточку операции и историю изменения статуса."
     />
 
     <StateBlock
@@ -52,6 +52,9 @@ onMounted(() => {
           <div>
             <p class="eyebrow">Детали операции</p>
             <h1>{{ transaction.id }}</h1>
+            <p class="summary-note">
+              {{ typeLabels[transaction.type] }} для клиента {{ transaction.userName }}
+            </p>
           </div>
           <StatusBadge :status="transaction.status" />
         </div>
@@ -116,7 +119,7 @@ onMounted(() => {
 .back-button {
   justify-self: start;
   min-height: 40px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #d8e0ea;
   border-radius: 8px;
   background: #ffffff;
   color: #0f172a;
@@ -127,7 +130,9 @@ onMounted(() => {
 }
 
 .back-button:hover {
-  background: #f8fafc;
+  border-color: #99f6e4;
+  background: #f0fdfa;
+  color: #0f766e;
 }
 
 .detail-layout {
@@ -140,7 +145,7 @@ onMounted(() => {
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 16px 45px rgb(15 23 42 / 0.06);
+  box-shadow: 0 14px 36px rgb(15 23 42 / 0.04);
 }
 
 .summary-card {
@@ -157,7 +162,7 @@ onMounted(() => {
 
 .eyebrow {
   margin: 0 0 8px;
-  color: #2563eb;
+  color: #0f766e;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0;
@@ -174,6 +179,12 @@ h1 {
   color: #0f172a;
   font-size: 32px;
   line-height: 1.12;
+}
+
+.summary-note {
+  margin-top: 8px;
+  color: #64748b;
+  line-height: 1.5;
 }
 
 h2 {
@@ -193,6 +204,7 @@ h2 {
   gap: 6px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
+  background: #f8fafc;
   padding: 14px;
 }
 
@@ -236,7 +248,7 @@ dd {
   height: 10px;
   margin-top: 8px;
   border-radius: 999px;
-  background: #2563eb;
+  background: #0f766e;
 }
 
 .history-head {
@@ -259,7 +271,7 @@ time,
 }
 
 button:focus-visible {
-  outline: 3px solid #bfdbfe;
+  outline: 3px solid #ccfbf1;
   outline-offset: 1px;
 }
 

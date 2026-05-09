@@ -16,7 +16,7 @@ defineProps<{
     <table>
       <thead>
         <tr>
-          <th>Id</th>
+          <th>ID</th>
           <th>Клиент</th>
           <th>Тип</th>
           <th>Статус</th>
@@ -27,7 +27,9 @@ defineProps<{
       </thead>
       <tbody>
         <tr v-for="transaction in transactions" :key="transaction.id">
-          <td class="mono">{{ transaction.id }}</td>
+          <td>
+            <span class="mono">{{ transaction.id }}</span>
+          </td>
           <td>{{ transaction.userName }}</td>
           <td>{{ typeLabels[transaction.type] }}</td>
           <td>
@@ -48,26 +50,28 @@ defineProps<{
 
 <style scoped>
 .table-shell {
-  overflow: hidden;
+  overflow-x: auto;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 16px 45px rgb(15 23 42 / 0.06);
+  box-shadow: 0 14px 36px rgb(15 23 42 / 0.04);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  min-width: 920px;
 }
 
 thead {
   background: #f8fafc;
+  box-shadow: inset 0 -1px 0 #e2e8f0;
 }
 
 th,
 td {
-  padding: 14px 16px;
+  padding: 15px 16px;
   border-bottom: 1px solid #e2e8f0;
   text-align: left;
   white-space: nowrap;
@@ -86,13 +90,18 @@ tbody tr:last-child td {
 }
 
 tbody tr:hover {
-  background: #f8fafc;
+  background: #f6faf9;
 }
 
 .mono {
+  display: inline-flex;
+  border-radius: 6px;
+  background: #f1f5f9;
   color: #334155;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 13px;
+  font-weight: 700;
+  padding: 4px 7px;
 }
 
 .capitalize {
@@ -109,12 +118,20 @@ tbody tr:hover {
 }
 
 .details-link {
-  color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  border: 1px solid #ccfbf1;
+  border-radius: 8px;
+  background: #f0fdfa;
+  color: #0f766e;
   font-weight: 800;
+  padding: 6px 10px;
   text-decoration: none;
 }
 
 .details-link:hover {
-  text-decoration: underline;
+  border-color: #99f6e4;
+  background: #ccfbf1;
 }
 </style>

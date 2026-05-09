@@ -20,11 +20,13 @@ defineProps<{
   place-items: center;
   align-content: center;
   gap: 12px;
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed #94a3b8;
   border-radius: 8px;
-  background: #f8fafc;
+  background: #ffffff;
+  box-shadow: 0 14px 36px rgb(15 23 42 / 0.04);
   color: #475569;
   text-align: center;
+  padding: 28px;
 }
 
 .state-block h2 {
@@ -40,4 +42,3 @@ defineProps<{
   line-height: 1.6;
 }
 </style>
-
