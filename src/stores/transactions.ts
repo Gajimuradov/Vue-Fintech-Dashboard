@@ -10,6 +10,11 @@ import type {
   TransactionStatus,
   TransactionType,
 } from '@/types/transaction';
+import {
+  buildStatusAnalytics,
+  buildTypeAnalytics,
+  type AnalyticsItem,
+} from '@/utils/analytics';
 import { defaultFilters, filterAndSortTransactions } from '@/utils/transactions';
 
 export const useTransactionsStore = defineStore('transactions', () => {
@@ -29,6 +34,12 @@ export const useTransactionsStore = defineStore('transactions', () => {
 
   const totalAmount = computed(() =>
     filteredTransactions.value.reduce((sum, transaction) => sum + transaction.amount, 0),
+  );
+  const statusAnalytics = computed<AnalyticsItem<TransactionStatus>[]>(() =>
+    buildStatusAnalytics(filteredTransactions.value),
+  );
+  const typeAnalytics = computed<AnalyticsItem<TransactionType>[]>(() =>
+    buildTypeAnalytics(filteredTransactions.value),
   );
 
   function setSearchQuery(searchQuery: string) {
@@ -64,7 +75,7 @@ export const useTransactionsStore = defineStore('transactions', () => {
       transactions.value = await fetchTransactions(options);
     } catch (cause) {
       transactions.value = [];
-      error.value = cause instanceof Error ? cause.message : 'Failed to load transactions.';
+      error.value = cause instanceof Error ? cause.message : 'Не удалось загрузить операции.';
     } finally {
       loading.value = false;
     }
@@ -79,6 +90,8 @@ export const useTransactionsStore = defineStore('transactions', () => {
     isEmpty,
     hasNoResults,
     totalAmount,
+    statusAnalytics,
+    typeAnalytics,
     setSearchQuery,
     setStatusFilter,
     setTypeFilter,
@@ -88,4 +101,3 @@ export const useTransactionsStore = defineStore('transactions', () => {
     loadTransactions,
   };
 });
-

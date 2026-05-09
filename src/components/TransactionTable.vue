@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router';
 import StatusBadge from '@/components/StatusBadge.vue';
 import type { Transaction } from '@/types/transaction';
 import { formatDate, formatMoney } from '@/utils/format';
+import { typeLabels } from '@/utils/labels';
 
 defineProps<{
   transactions: Transaction[];
@@ -16,19 +17,19 @@ defineProps<{
       <thead>
         <tr>
           <th>Id</th>
-          <th>User</th>
-          <th>Type</th>
-          <th>Status</th>
-          <th>Amount</th>
-          <th>Created</th>
-          <th aria-label="Actions"></th>
+          <th>Клиент</th>
+          <th>Тип</th>
+          <th>Статус</th>
+          <th>Сумма</th>
+          <th>Создана</th>
+          <th aria-label="Действия"></th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="transaction in transactions" :key="transaction.id">
           <td class="mono">{{ transaction.id }}</td>
           <td>{{ transaction.userName }}</td>
-          <td class="capitalize">{{ transaction.type }}</td>
+          <td>{{ typeLabels[transaction.type] }}</td>
           <td>
             <StatusBadge :status="transaction.status" />
           </td>
@@ -36,7 +37,7 @@ defineProps<{
           <td>{{ formatDate(transaction.createdAt) }}</td>
           <td class="action-cell">
             <RouterLink class="details-link" :to="`/transactions/${transaction.id}`">
-              Details
+              Открыть
             </RouterLink>
           </td>
         </tr>
@@ -117,4 +118,3 @@ tbody tr:hover {
   text-decoration: underline;
 }
 </style>
-

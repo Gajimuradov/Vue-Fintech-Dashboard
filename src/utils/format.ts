@@ -1,7 +1,7 @@
 import type { Transaction } from '@/types/transaction';
 
 export function formatMoney(amount: number, currency: Transaction['currency']): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('ru-RU', {
     style: 'currency',
     currency,
     maximumFractionDigits: 2,
@@ -9,9 +9,8 @@ export function formatMoney(amount: number, currency: Transaction['currency']): 
 }
 
 export function formatDate(value: string): string {
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat('ru-RU', {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value));
 }
-

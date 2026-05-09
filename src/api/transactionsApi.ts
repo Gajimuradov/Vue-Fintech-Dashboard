@@ -1,4 +1,3 @@
-import { transactions } from '@/data/transactions';
 import type { Transaction } from '@/types/transaction';
 
 type FetchTransactionsOptions = {
@@ -6,17 +5,30 @@ type FetchTransactionsOptions = {
   shouldFail?: boolean;
 };
 
-const DEFAULT_DELAY_MS = 450;
+const API_ORIGIN = globalThis.location?.origin ?? 'http://localhost';
 
 export async function fetchTransactions({
-  delayMs = DEFAULT_DELAY_MS,
+  delayMs,
   shouldFail = false,
 }: FetchTransactionsOptions = {}): Promise<Transaction[]> {
-  await new Promise((resolve) => globalThis.setTimeout(resolve, delayMs));
+  const url = new URL('/api/transactions', API_ORIGIN);
 
-  if (shouldFail) {
-    throw new Error('Mock API failed to load transactions.');
+  if (typeof delayMs === 'number') {
+    url.searchParams.set('delayMs', String(delayMs));
   }
 
-  return structuredClone(transactions);
+  if (shouldFail) {
+    url.searchParams.set('scenario', 'error');
+  }
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const fallbackMessage = 'Не удалось загрузить операции.';
+    const payload = (await response.json().catch(() => null)) as { message?: string } | null;
+
+    throw new Error(payload?.message ?? fallbackMessage);
+  }
+
+  return (await response.json()) as Transaction[];
 }

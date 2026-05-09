@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { transactions } from '@/data/transactions';
 import type { TransactionFilters } from '@/types/transaction';
+import { buildStatusAnalytics, buildTypeAnalytics } from '@/utils/analytics';
 import { defaultFilters, filterAndSortTransactions, filterTransactions, sortTransactions } from '@/utils/transactions';
 
 describe('transaction filtering and sorting', () => {
@@ -42,5 +43,21 @@ describe('transaction filtering and sorting', () => {
 
     expect(result.map((transaction) => transaction.id)).toEqual(['TRX-1007', 'TRX-1005', 'TRX-1004', 'TRX-1001']);
   });
-});
 
+  it('builds analytics by status and type', () => {
+    const statusAnalytics = buildStatusAnalytics(transactions);
+    const typeAnalytics = buildTypeAnalytics(transactions);
+
+    expect(statusAnalytics).toMatchObject([
+      { key: 'completed', count: 4, percentage: 50 },
+      { key: 'pending', count: 2, percentage: 25 },
+      { key: 'failed', count: 2, percentage: 25 },
+    ]);
+    expect(typeAnalytics).toMatchObject([
+      { key: 'deposit', count: 2, percentage: 25 },
+      { key: 'withdrawal', count: 2, percentage: 25 },
+      { key: 'payment', count: 2, percentage: 25 },
+      { key: 'transfer', count: 2, percentage: 25 },
+    ]);
+  });
+});

@@ -6,6 +6,7 @@ import type {
   TransactionStatus,
   TransactionType,
 } from '@/types/transaction';
+import { sortLabels, statusLabels, typeLabels } from '@/utils/labels';
 
 defineProps<{
   filters: TransactionFilters;
@@ -21,6 +22,14 @@ const emit = defineEmits<{
 
 const statuses: Array<TransactionStatus | 'all'> = ['all', 'pending', 'completed', 'failed'];
 const types: Array<TransactionType | 'all'> = ['all', 'deposit', 'withdrawal', 'payment', 'transfer'];
+const statusFilterLabels: Record<TransactionStatus | 'all', string> = {
+  all: 'Все статусы',
+  ...statusLabels,
+};
+const typeFilterLabels: Record<TransactionType | 'all', string> = {
+  all: 'Все типы',
+  ...typeLabels,
+};
 
 function handleSortChange(value: string) {
   const [field, direction] = value.split(':') as [SortField, SortDirection];
@@ -29,59 +38,59 @@ function handleSortChange(value: string) {
 </script>
 
 <template>
-  <section class="filters" aria-label="Transaction filters">
+  <section class="filters" aria-label="Фильтры операций">
     <label class="field search-field">
-      <span>Search</span>
+      <span>Поиск</span>
       <input
         :value="filters.searchQuery"
         type="search"
-        placeholder="User name or transaction id"
-        aria-label="Search by user name or transaction id"
+        placeholder="Имя клиента или id операции"
+        aria-label="Поиск по имени клиента или id операции"
         @input="emit('search', ($event.target as HTMLInputElement).value)"
       />
     </label>
 
     <label class="field">
-      <span>Status</span>
+      <span>Статус</span>
       <select
         :value="filters.status"
-        aria-label="Filter by status"
+        aria-label="Фильтр по статусу"
         @change="emit('status', ($event.target as HTMLSelectElement).value as TransactionStatus | 'all')"
       >
         <option v-for="status in statuses" :key="status" :value="status">
-          {{ status }}
+          {{ statusFilterLabels[status] }}
         </option>
       </select>
     </label>
 
     <label class="field">
-      <span>Type</span>
+      <span>Тип</span>
       <select
         :value="filters.type"
-        aria-label="Filter by type"
+        aria-label="Фильтр по типу операции"
         @change="emit('type', ($event.target as HTMLSelectElement).value as TransactionType | 'all')"
       >
         <option v-for="type in types" :key="type" :value="type">
-          {{ type }}
+          {{ typeFilterLabels[type] }}
         </option>
       </select>
     </label>
 
     <label class="field">
-      <span>Sort</span>
+      <span>Сортировка</span>
       <select
         :value="`${filters.sortField}:${filters.sortDirection}`"
-        aria-label="Sort transactions"
+        aria-label="Сортировка операций"
         @change="handleSortChange(($event.target as HTMLSelectElement).value)"
       >
-        <option value="createdAt:desc">Newest first</option>
-        <option value="createdAt:asc">Oldest first</option>
-        <option value="amount:desc">Amount high to low</option>
-        <option value="amount:asc">Amount low to high</option>
+        <option value="createdAt:desc">{{ sortLabels['createdAt:desc'] }}</option>
+        <option value="createdAt:asc">{{ sortLabels['createdAt:asc'] }}</option>
+        <option value="amount:desc">{{ sortLabels['amount:desc'] }}</option>
+        <option value="amount:asc">{{ sortLabels['amount:asc'] }}</option>
       </select>
     </label>
 
-    <button class="secondary-button" type="button" @click="emit('reset')">Reset</button>
+    <button class="secondary-button" type="button" @click="emit('reset')">Сбросить</button>
   </section>
 </template>
 
@@ -150,4 +159,3 @@ button:focus-visible {
   }
 }
 </style>
-

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { TransactionStatus } from '@/types/transaction';
+import { statusLabels } from '@/utils/labels';
 
 defineProps<{
   status: TransactionStatus;
@@ -7,7 +8,7 @@ defineProps<{
 </script>
 
 <template>
-  <span :class="['badge', status]">{{ status }}</span>
+  <span :class="['badge', status]">{{ statusLabels[status] }}</span>
 </template>
 
 <style scoped>
@@ -40,4 +41,3 @@ defineProps<{
   color: #991b1b;
 }
 </style>
-

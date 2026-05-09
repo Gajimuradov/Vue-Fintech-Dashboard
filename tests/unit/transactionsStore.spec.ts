@@ -20,6 +20,10 @@ describe('transactions store', () => {
     expect(store.filteredTransactions).toHaveLength(4);
     expect(store.filteredTransactions[0].id).toBe('TRX-1005');
     expect(store.totalAmount).toBe(5340.75);
+    expect(store.statusAnalytics.find((item) => item.key === 'completed')).toMatchObject({
+      count: 4,
+      percentage: 100,
+    });
   });
 
   it('stores error state when mock api fails', async () => {
@@ -29,7 +33,7 @@ describe('transactions store', () => {
 
     expect(store.loading).toBe(false);
     expect(store.transactions).toEqual([]);
-    expect(store.error).toBe('Mock API failed to load transactions.');
+    expect(store.error).toBe('Не удалось загрузить операции из mock API.');
   });
 
   it('marks no-results state after filters exclude loaded data', async () => {

@@ -7,6 +7,7 @@ import StatusBadge from '@/components/StatusBadge.vue';
 import StateBlock from '@/components/StateBlock.vue';
 import { useTransactionsStore } from '@/stores/transactions';
 import { formatDate, formatMoney } from '@/utils/format';
+import { statusLabels, typeLabels } from '@/utils/labels';
 
 const route = useRoute();
 const router = useRouter();
@@ -25,31 +26,31 @@ onMounted(() => {
 
 <template>
   <main class="page-shell">
-    <button class="back-button" type="button" @click="router.back()">Back</button>
+    <button class="back-button" type="button" @click="router.back()">Назад</button>
 
     <StateBlock
       v-if="loading"
-      title="Loading operation"
-      description="Transaction details are being loaded from mock API."
+      title="Загружаем операцию"
+      description="Подтягиваем детали и историю статуса из mock API."
     />
 
     <StateBlock
       v-else-if="error"
-      title="Unable to load operation"
+      title="Не удалось открыть операцию"
       :description="error"
     />
 
     <StateBlock
       v-else-if="!transaction"
-      title="Transaction not found"
-      description="The requested operation id does not exist in mock data."
+      title="Операция не найдена"
+      description="В mock-данных нет операции с таким id."
     />
 
     <section v-else class="detail-layout">
       <article class="summary-card">
         <div class="summary-top">
           <div>
-            <p class="eyebrow">Operation detail</p>
+            <p class="eyebrow">Детали операции</p>
             <h1>{{ transaction.id }}</h1>
           </div>
           <StatusBadge :status="transaction.status" />
@@ -57,34 +58,34 @@ onMounted(() => {
 
         <dl class="detail-grid">
           <div>
-            <dt>User</dt>
+            <dt>Клиент</dt>
             <dd>{{ transaction.userName }}</dd>
           </div>
           <div>
-            <dt>Amount</dt>
+            <dt>Сумма</dt>
             <dd>{{ formatMoney(transaction.amount, transaction.currency) }}</dd>
           </div>
           <div>
-            <dt>Currency</dt>
+            <dt>Валюта</dt>
             <dd>{{ transaction.currency }}</dd>
           </div>
           <div>
-            <dt>Type</dt>
-            <dd>{{ transaction.type }}</dd>
+            <dt>Тип</dt>
+            <dd>{{ typeLabels[transaction.type] }}</dd>
           </div>
           <div>
-            <dt>Created</dt>
+            <dt>Создана</dt>
             <dd>{{ formatDate(transaction.createdAt) }}</dd>
           </div>
           <div>
-            <dt>Status</dt>
-            <dd>{{ transaction.status }}</dd>
+            <dt>Статус</dt>
+            <dd>{{ statusLabels[transaction.status] }}</dd>
           </div>
         </dl>
       </article>
 
       <article class="history-card">
-        <h2>Status history</h2>
+        <h2>История статуса</h2>
         <ol class="timeline">
           <li v-for="item in transaction.statusHistory" :key="`${item.status}-${item.changedAt}`">
             <div class="timeline-dot" aria-hidden="true"></div>
@@ -274,4 +275,3 @@ button:focus-visible {
   }
 }
 </style>
-

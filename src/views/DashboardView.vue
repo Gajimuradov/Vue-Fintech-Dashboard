@@ -1,16 +1,31 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 
+import OperationAnalytics from '@/components/OperationAnalytics.vue';
 import StateBlock from '@/components/StateBlock.vue';
 import TransactionFilters from '@/components/TransactionFilters.vue';
 import TransactionTable from '@/components/TransactionTable.vue';
 import { useTransactionsStore } from '@/stores/transactions';
 import { formatMoney } from '@/utils/format';
+import { sortLabels } from '@/utils/labels';
 
 const store = useTransactionsStore();
-const { error, filteredTransactions, filters, hasNoResults, isEmpty, loading, totalAmount } =
-  storeToRefs(store);
+const {
+  error,
+  filteredTransactions,
+  filters,
+  hasNoResults,
+  isEmpty,
+  loading,
+  statusAnalytics,
+  totalAmount,
+  typeAnalytics,
+} = storeToRefs(store);
+
+const currentSortLabel = computed(
+  () => sortLabels[`${filters.value.sortField}:${filters.value.sortDirection}`],
+);
 
 onMounted(() => {
   if (!store.transactions.length && !store.loading) {
@@ -23,39 +38,45 @@ onMounted(() => {
   <main class="page-shell">
     <header class="page-header">
       <div>
-        <p class="eyebrow">Fintech operations</p>
-        <h1>Transaction Dashboard</h1>
-        <p class="lead">Monitor deposits, withdrawals, transfers and payments in one compact view.</p>
+        <p class="eyebrow">Финтех-операции</p>
+        <h1>Панель операций</h1>
+        <p class="lead">Быстрый обзор платежей, переводов, пополнений и выводов без лишнего шума.</p>
       </div>
 
       <div class="header-actions">
         <button type="button" class="secondary-button" @click="store.loadTransactions()">
-          Reload
+          Обновить
         </button>
         <button
           type="button"
           class="danger-button"
           @click="store.loadTransactions({ shouldFail: true })"
         >
-          Simulate error
+          Показать ошибку
         </button>
       </div>
     </header>
 
-    <section class="metrics" aria-label="Dashboard summary">
+    <section class="metrics" aria-label="Сводка по операциям">
       <article>
-        <span>Total shown</span>
+        <span>Найдено</span>
         <strong>{{ filteredTransactions.length }}</strong>
       </article>
       <article>
-        <span>Volume shown</span>
+        <span>Сумма в выборке</span>
         <strong>{{ formatMoney(totalAmount, 'USD') }}</strong>
       </article>
       <article>
-        <span>Sort</span>
-        <strong>{{ filters.sortField }} / {{ filters.sortDirection }}</strong>
+        <span>Порядок</span>
+        <strong>{{ currentSortLabel }}</strong>
       </article>
     </section>
+
+    <OperationAnalytics
+      v-if="!loading && !error && !isEmpty && !hasNoResults"
+      :status-items="statusAnalytics"
+      :type-items="typeAnalytics"
+    />
 
     <section class="panel">
       <TransactionFilters
@@ -70,30 +91,30 @@ onMounted(() => {
 
     <StateBlock
       v-if="loading"
-      title="Loading transactions"
-      description="Mock API delay is enabled to demonstrate loading state."
+      title="Загружаем операции"
+      description="Mock API специально отвечает с небольшой задержкой, чтобы было видно состояние загрузки."
     />
 
     <StateBlock
       v-else-if="error"
-      title="Unable to load transactions"
+      title="Операции не загрузились"
       :description="error"
     >
-      <button type="button" class="primary-button" @click="store.loadTransactions()">Try again</button>
+      <button type="button" class="primary-button" @click="store.loadTransactions()">Попробовать еще раз</button>
     </StateBlock>
 
     <StateBlock
       v-else-if="isEmpty"
-      title="No transactions yet"
-      description="The API returned an empty data set."
+      title="Операций пока нет"
+      description="Mock API вернул пустой список. Для реального продукта здесь был бы первый чистый экран."
     />
 
     <StateBlock
       v-else-if="hasNoResults"
-      title="No matching transactions"
-      description="Adjust filters or reset them to return to the full operations list."
+      title="Ничего не найдено"
+      description="Таких операций в списке нет. Измените фильтры или вернитесь к полной выборке."
     >
-      <button type="button" class="primary-button" @click="store.resetFilters()">Reset filters</button>
+      <button type="button" class="primary-button" @click="store.resetFilters()">Сбросить фильтры</button>
     </StateBlock>
 
     <TransactionTable v-else :transactions="filteredTransactions" />
@@ -237,4 +258,3 @@ button:focus-visible {
   }
 }
 </style>
-
