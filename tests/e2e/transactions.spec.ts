@@ -4,8 +4,10 @@ test('user filters transactions and opens detail page', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.getByRole('heading', { name: 'Панель операций' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Операции по дням' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Как идут операции' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Структура потока' })).toBeVisible();
+  await expect(page.getByText('Объем по валютам')).toBeVisible();
   await expect(page.getByText('TRX-1001')).toBeVisible();
 
   await page.getByRole('searchbox', { name: 'Поиск по имени клиента или id операции' }).fill('Sophia');

@@ -2,6 +2,8 @@ export type TransactionStatus = 'pending' | 'completed' | 'failed';
 
 export type TransactionType = 'deposit' | 'withdrawal' | 'payment' | 'transfer';
 
+export type TransactionCurrency = 'USD' | 'EUR' | 'GBP';
+
 export type SortField = 'createdAt' | 'amount';
 
 export type SortDirection = 'asc' | 'desc';
@@ -16,7 +18,7 @@ export type StatusHistoryItem = {
 export type Transaction = {
   id: string;
   amount: number;
-  currency: 'USD' | 'EUR' | 'GBP';
+  currency: TransactionCurrency;
   status: TransactionStatus;
   type: TransactionType;
   createdAt: string;
@@ -31,4 +33,3 @@ export type TransactionFilters = {
   sortField: SortField;
   sortDirection: SortDirection;
 };
-

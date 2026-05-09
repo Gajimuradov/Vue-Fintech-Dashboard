@@ -18,8 +18,9 @@ const {
   hasNoResults,
   isEmpty,
   loading,
+  currencyTotals,
+  dailyTrend,
   statusAnalytics,
-  totalAmount,
   typeAnalytics,
 } = storeToRefs(store);
 
@@ -63,8 +64,12 @@ onMounted(() => {
         <strong>{{ filteredTransactions.length }}</strong>
       </article>
       <article>
-        <span>Сумма в выборке</span>
-        <strong>{{ formatMoney(totalAmount, 'USD') }}</strong>
+        <span>Объем по валютам</span>
+        <div class="currency-summary">
+          <strong v-for="item in currencyTotals" :key="item.currency">
+            {{ formatMoney(item.amount, item.currency) }}
+          </strong>
+        </div>
       </article>
       <article>
         <span>Порядок</span>
@@ -76,6 +81,8 @@ onMounted(() => {
       v-if="!loading && !error && !isEmpty && !hasNoResults"
       :status-items="statusAnalytics"
       :type-items="typeAnalytics"
+      :currency-totals="currencyTotals"
+      :daily-items="dailyTrend"
     />
 
     <section class="panel">
@@ -195,6 +202,16 @@ h1 {
   color: #0f172a;
   font-size: 24px;
   line-height: 1;
+}
+
+.currency-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.currency-summary strong {
+  font-size: 18px;
 }
 
 .panel {

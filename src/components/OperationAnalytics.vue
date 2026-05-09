@@ -1,16 +1,54 @@
 <script setup lang="ts">
 import type { TransactionStatus, TransactionType } from '@/types/transaction';
-import type { AnalyticsItem } from '@/utils/analytics';
+import type { AnalyticsItem, CurrencyTotal, DailyTrendItem } from '@/utils/analytics';
 import { formatMoney } from '@/utils/format';
 
 defineProps<{
   statusItems: AnalyticsItem<TransactionStatus>[];
   typeItems: AnalyticsItem<TransactionType>[];
+  currencyTotals: CurrencyTotal[];
+  dailyItems: DailyTrendItem[];
 }>();
+
+function hasTotals(totals: CurrencyTotal[]) {
+  return totals.length > 0;
+}
 </script>
 
 <template>
   <section class="analytics" aria-label="Аналитика по операциям">
+    <article>
+      <div class="section-head">
+        <span>Динамика</span>
+        <h2>Операции по дням</h2>
+      </div>
+
+      <div class="daily-list" aria-label="График дневной динамики операций">
+        <div v-for="item in dailyItems" :key="item.date" class="daily-row">
+          <time :datetime="item.date">{{ item.label }}</time>
+          <div class="daily-track" aria-hidden="true">
+            <span :style="{ width: `${item.percentage}%` }"></span>
+          </div>
+          <strong>{{ item.count }}</strong>
+        </div>
+      </div>
+    </article>
+
+    <article>
+      <div class="section-head">
+        <span>Валюты</span>
+        <h2>Объем в выборке</h2>
+      </div>
+
+      <ul class="currency-list">
+        <li v-for="item in currencyTotals" :key="item.currency">
+          <strong>{{ item.currency }}</strong>
+          <span>{{ item.count }} шт.</span>
+          <b>{{ formatMoney(item.amount, item.currency) }}</b>
+        </li>
+      </ul>
+    </article>
+
     <article>
       <div class="section-head">
         <span>Статусы</span>
@@ -28,7 +66,12 @@ defineProps<{
           </div>
           <div class="row-foot">
             <span>{{ item.percentage }}%</span>
-            <span>{{ formatMoney(item.amount, 'USD') }}</span>
+            <span v-if="!hasTotals(item.totals)">0</span>
+            <span v-else class="totals">
+              <span v-for="total in item.totals" :key="total.currency">
+                {{ formatMoney(total.amount, total.currency) }}
+              </span>
+            </span>
           </div>
         </li>
       </ul>
@@ -51,7 +94,12 @@ defineProps<{
           </div>
           <div class="row-foot">
             <span>{{ item.percentage }}%</span>
-            <span>{{ formatMoney(item.amount, 'USD') }}</span>
+            <span v-if="!hasTotals(item.totals)">0</span>
+            <span v-else class="totals">
+              <span v-for="total in item.totals" :key="total.currency">
+                {{ formatMoney(total.amount, total.currency) }}
+              </span>
+            </span>
           </div>
         </li>
       </ul>
@@ -103,9 +151,83 @@ h2 {
   list-style: none;
 }
 
-li {
+.analytics-list li {
   display: grid;
   gap: 8px;
+}
+
+.daily-list {
+  display: grid;
+  gap: 12px;
+}
+
+.daily-row {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) 28px;
+  gap: 12px;
+  align-items: center;
+}
+
+.daily-row strong {
+  color: #0f172a;
+  font-size: 14px;
+  text-align: right;
+}
+
+.daily-track {
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+.daily-track span {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+  border-radius: inherit;
+  background: #2563eb;
+}
+
+time {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.currency-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.currency-list li {
+  display: grid;
+  grid-template-columns: 64px 64px 1fr;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.currency-list strong,
+.currency-list b {
+  color: #0f172a;
+}
+
+.currency-list span {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.currency-list b {
+  justify-self: end;
 }
 
 .row-head,
@@ -126,6 +248,13 @@ li {
   color: #64748b;
   font-size: 13px;
   font-weight: 700;
+}
+
+.totals {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px 10px;
 }
 
 .bar {
@@ -149,4 +278,3 @@ li {
   }
 }
 </style>
-

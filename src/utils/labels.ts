@@ -1,6 +1,7 @@
 import type {
   SortDirection,
   SortField,
+  TransactionCurrency,
   TransactionStatus,
   TransactionType,
 } from '@/types/transaction';
@@ -29,3 +30,4 @@ export const statusOrder: TransactionStatus[] = ['completed', 'pending', 'failed
 
 export const typeOrder: TransactionType[] = ['deposit', 'withdrawal', 'payment', 'transfer'];
 
+export const currencyOrder: TransactionCurrency[] = ['USD', 'EUR', 'GBP'];

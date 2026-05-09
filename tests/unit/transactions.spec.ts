@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import { transactions } from '@/data/transactions';
 import type { TransactionFilters } from '@/types/transaction';
-import { buildStatusAnalytics, buildTypeAnalytics } from '@/utils/analytics';
+import {
+  buildCurrencyTotals,
+  buildDailyTrend,
+  buildStatusAnalytics,
+  buildTypeAnalytics,
+} from '@/utils/analytics';
 import { defaultFilters, filterAndSortTransactions, filterTransactions, sortTransactions } from '@/utils/transactions';
 
 describe('transaction filtering and sorting', () => {
@@ -59,5 +64,29 @@ describe('transaction filtering and sorting', () => {
       { key: 'payment', count: 2, percentage: 25 },
       { key: 'transfer', count: 2, percentage: 25 },
     ]);
+  });
+
+  it('builds currency totals without mixing currencies', () => {
+    expect(buildCurrencyTotals(transactions)).toMatchObject([
+      { currency: 'USD', amount: 4448.49, count: 4 },
+      { currency: 'EUR', amount: 485.3, count: 2 },
+      { currency: 'GBP', amount: 1320.95, count: 2 },
+    ]);
+  });
+
+  it('builds daily operation trend sorted by date', () => {
+    const trend = buildDailyTrend(transactions);
+
+    expect(trend.map((item) => item.date)).toEqual([
+      '2026-05-03',
+      '2026-05-04',
+      '2026-05-05',
+      '2026-05-06',
+      '2026-05-07',
+    ]);
+    expect(trend.at(-1)).toMatchObject({
+      count: 2,
+      percentage: 100,
+    });
   });
 });

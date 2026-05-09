@@ -11,9 +11,13 @@ import type {
   TransactionType,
 } from '@/types/transaction';
 import {
+  buildCurrencyTotals,
+  buildDailyTrend,
   buildStatusAnalytics,
   buildTypeAnalytics,
   type AnalyticsItem,
+  type CurrencyTotal,
+  type DailyTrendItem,
 } from '@/utils/analytics';
 import { defaultFilters, filterAndSortTransactions } from '@/utils/transactions';
 
@@ -32,9 +36,10 @@ export const useTransactionsStore = defineStore('transactions', () => {
     () => !loading.value && !error.value && transactions.value.length > 0 && filteredTransactions.value.length === 0,
   );
 
-  const totalAmount = computed(() =>
-    filteredTransactions.value.reduce((sum, transaction) => sum + transaction.amount, 0),
+  const currencyTotals = computed<CurrencyTotal[]>(() =>
+    buildCurrencyTotals(filteredTransactions.value),
   );
+  const dailyTrend = computed<DailyTrendItem[]>(() => buildDailyTrend(filteredTransactions.value));
   const statusAnalytics = computed<AnalyticsItem<TransactionStatus>[]>(() =>
     buildStatusAnalytics(filteredTransactions.value),
   );
@@ -89,7 +94,8 @@ export const useTransactionsStore = defineStore('transactions', () => {
     filteredTransactions,
     isEmpty,
     hasNoResults,
-    totalAmount,
+    currencyTotals,
+    dailyTrend,
     statusAnalytics,
     typeAnalytics,
     setSearchQuery,

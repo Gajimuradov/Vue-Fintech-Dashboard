@@ -19,7 +19,11 @@ describe('transactions store', () => {
     expect(store.error).toBeNull();
     expect(store.filteredTransactions).toHaveLength(4);
     expect(store.filteredTransactions[0].id).toBe('TRX-1005');
-    expect(store.totalAmount).toBe(5340.75);
+    expect(store.currencyTotals).toMatchObject([
+      { currency: 'USD', amount: 4360, count: 3 },
+      { currency: 'GBP', amount: 980.75, count: 1 },
+    ]);
+    expect(store.dailyTrend).toHaveLength(4);
     expect(store.statusAnalytics.find((item) => item.key === 'completed')).toMatchObject({
       count: 4,
       percentage: 100,
