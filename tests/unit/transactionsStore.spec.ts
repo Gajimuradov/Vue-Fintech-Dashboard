@@ -1,11 +1,15 @@
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useTransactionsStore } from '@/stores/transactions';
 
 describe('transactions store', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('loads transactions and exposes filtered selectors', async () => {
@@ -48,5 +52,59 @@ describe('transactions store', () => {
 
     expect(store.isEmpty).toBe(false);
     expect(store.hasNoResults).toBe(true);
+  });
+
+  it('adds live transactions on a controlled schedule and stops after max updates', async () => {
+    const store = useTransactionsStore();
+
+    await store.loadTransactions({ delayMs: 0 });
+    vi.useFakeTimers();
+    store.startLiveUpdates({
+      minIntervalMs: 10,
+      maxIntervalMs: 10,
+      durationMs: 1_000,
+      maxUpdates: 1,
+      now: () => new Date('2026-05-10T10:00:00.000Z'),
+      random: () => 0,
+    });
+
+    expect(store.liveEnabled).toBe(true);
+    expect(store.liveRemainingSeconds).toBe(1);
+    expect(store.liveRemainingText).toBe('0:01');
+
+    vi.advanceTimersByTime(10);
+
+    expect(store.transactions[0]).toMatchObject({
+      id: 'TRX-1009',
+      status: 'pending',
+      type: 'deposit',
+      currency: 'USD',
+      userName: 'Daria Volkova',
+    });
+    expect(store.lastAddedTransaction?.id).toBe('TRX-1009');
+    expect(store.liveUpdatesCount).toBe(1);
+    expect(store.liveEnabled).toBe(false);
+    expect(store.liveRemainingSeconds).toBe(0);
+  });
+
+  it('counts down live mode time while updates are running', async () => {
+    const store = useTransactionsStore();
+
+    await store.loadTransactions({ delayMs: 0 });
+    vi.useFakeTimers();
+    store.startLiveUpdates({
+      minIntervalMs: 500,
+      maxIntervalMs: 500,
+      durationMs: 60_000,
+      maxUpdates: 0,
+    });
+
+    expect(store.liveRemainingText).toBe('1:00');
+
+    vi.advanceTimersByTime(31_000);
+
+    expect(store.liveRemainingText).toBe('0:29');
+
+    store.stopLiveUpdates();
   });
 });

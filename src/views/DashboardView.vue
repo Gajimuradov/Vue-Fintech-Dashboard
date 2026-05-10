@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
-import { computed, onMounted } from 'vue';
+import { computed, onBeforeUnmount, onMounted } from 'vue';
 
 import OperationAnalytics from '@/components/OperationAnalytics.vue';
 import StateBlock from '@/components/StateBlock.vue';
@@ -17,6 +17,11 @@ const {
   filters,
   hasNoResults,
   isEmpty,
+  lastAddedTransaction,
+  liveEnabled,
+  liveRemainingText,
+  liveStatusText,
+  liveUpdatesCount,
   loading,
   currencyTotals,
   dailyTrend,
@@ -28,10 +33,23 @@ const currentSortLabel = computed(
   () => sortLabels[`${filters.value.sortField}:${filters.value.sortDirection}`],
 );
 
+function toggleLiveUpdates() {
+  if (store.liveEnabled) {
+    store.stopLiveUpdates();
+    return;
+  }
+
+  store.startLiveUpdates();
+}
+
 onMounted(() => {
   if (!store.transactions.length && !store.loading) {
     void store.loadTransactions();
   }
+});
+
+onBeforeUnmount(() => {
+  store.stopLiveUpdates();
 });
 </script>
 
@@ -42,9 +60,22 @@ onMounted(() => {
         <p class="eyebrow">Операционный мониторинг</p>
         <h1>Операции и статусы</h1>
         <p class="lead">Рабочий экран для контроля платежей, переводов, пополнений и выводов: быстро найти операцию, увидеть статус и открыть детали без лишних переходов.</p>
+        <p class="live-status">
+          <span :class="['live-dot', { active: liveEnabled }]"></span>
+          {{ liveStatusText }}
+          <strong v-if="liveEnabled" class="live-timer">{{ liveRemainingText }}</strong>
+        </p>
       </div>
 
       <div class="header-actions">
+        <button
+          type="button"
+          :class="['live-button', { active: liveEnabled }]"
+          :disabled="loading || Boolean(error)"
+          @click="toggleLiveUpdates"
+        >
+          {{ liveEnabled ? 'Остановить Live' : 'Включить Live' }}
+        </button>
         <button type="button" class="secondary-button" @click="store.loadTransactions()">
           Обновить данные
         </button>
@@ -57,6 +88,22 @@ onMounted(() => {
         </button>
       </div>
     </header>
+
+    <section v-if="lastAddedTransaction" class="live-notice" aria-live="polite">
+      <div>
+        <span>Новая заявка</span>
+        <strong>{{ lastAddedTransaction.id }}</strong>
+        <p>
+          {{ lastAddedTransaction.userName }} · {{ formatMoney(lastAddedTransaction.amount, lastAddedTransaction.currency) }}
+        </p>
+      </div>
+      <div class="notice-actions">
+        <RouterLink class="notice-link" :to="`/transactions/${lastAddedTransaction.id}`">
+          Открыть
+        </RouterLink>
+        <button type="button" @click="store.dismissLiveNotification()">Скрыть</button>
+      </div>
+    </section>
 
     <section class="panel">
       <div class="panel-head">
@@ -109,6 +156,7 @@ onMounted(() => {
         <article>
           <span>В выборке</span>
           <strong>{{ filteredTransactions.length }}</strong>
+          <small v-if="liveUpdatesCount > 0">+{{ liveUpdatesCount }} из live-потока</small>
         </article>
         <article>
           <span>Оборот по валютам</span>
@@ -175,8 +223,41 @@ h1 {
   line-height: 1.6;
 }
 
+.live-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.live-timer {
+  border-radius: 999px;
+  background: #ccfbf1;
+  color: #134e4a;
+  font-variant-numeric: tabular-nums;
+  padding: 3px 8px;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #94a3b8;
+}
+
+.live-dot.active {
+  background: #0f766e;
+  box-shadow: 0 0 0 5px rgb(15 118 110 / 0.14);
+}
+
 .header-actions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 10px;
 }
 
@@ -210,6 +291,72 @@ h1 {
   color: #0f172a;
   font-size: 22px;
   line-height: 1;
+}
+
+.metrics small {
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.live-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid #99f6e4;
+  border-radius: 8px;
+  background: #f0fdfa;
+  color: #0f172a;
+  padding: 14px 16px;
+}
+
+.live-notice span {
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.live-notice strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 18px;
+}
+
+.live-notice p {
+  margin: 3px 0 0;
+  color: #475569;
+  font-size: 14px;
+}
+
+.notice-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notice-link,
+.notice-actions button {
+  min-height: 34px;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 7px 10px;
+}
+
+.notice-link {
+  border: 1px solid #0f766e;
+  background: #0f766e;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.notice-actions button {
+  border: 1px solid #99f6e4;
+  background: #ffffff;
+  color: #0f766e;
 }
 
 .currency-summary {
@@ -251,6 +398,7 @@ h2 {
 }
 
 .primary-button,
+.live-button,
 .secondary-button,
 .danger-button {
   min-height: 40px;
@@ -267,6 +415,22 @@ h2 {
   color: #ffffff;
 }
 
+.live-button {
+  border: 1px solid #0f766e;
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.live-button.active {
+  border-color: #134e4a;
+  background: #134e4a;
+}
+
+.live-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .secondary-button {
   border: 1px solid #cbd5e1;
   background: #ffffff;
@@ -279,7 +443,8 @@ h2 {
   color: #9a3412;
 }
 
-.primary-button:hover {
+.primary-button:hover,
+.live-button:hover:not(:disabled) {
   background: #115e59;
 }
 
@@ -300,6 +465,13 @@ button:focus-visible {
 
 @media (max-width: 900px) {
   .page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .header-actions,
+  .live-notice,
+  .notice-actions {
     align-items: stretch;
     flex-direction: column;
   }

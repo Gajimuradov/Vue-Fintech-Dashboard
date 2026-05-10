@@ -8,6 +8,11 @@ test('user filters transactions and opens detail page', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Как идут операции' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Структура потока' })).toBeVisible();
   await expect(page.getByText('Оборот по валютам')).toBeVisible();
+  await expect(page.getByText('Live-режим выключен')).toBeVisible();
+  await page.getByRole('button', { name: 'Включить Live' }).click();
+  await expect(page.getByText('Live-режим включен: новые заявки будут появляться автоматически')).toBeVisible();
+  await expect(page.getByText('1:00')).toBeVisible();
+  await page.getByRole('button', { name: 'Остановить Live' }).click();
   await expect(page.getByText('TRX-1001')).toBeVisible();
 
   await page.getByRole('searchbox', { name: 'Поиск по имени клиента или id операции' }).fill('Sophia');
